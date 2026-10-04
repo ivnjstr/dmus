@@ -1,0 +1,334 @@
+@import "tailwindcss";
+
+/* Brand tokens — taken from the design's brand colour and font sheet. */
+@theme {
+  --color-brand-green: #0d3a31;
+  --color-brand-ink: #092a23; /* dark text on orange buttons */
+  --color-brand-orange: #eb9c2f;
+  --color-cream: #f6f1e6;
+}
+
+/* Reels popup progress: one segment filling over a reel's 4 seconds. */
+@theme {
+  --animate-reel-progress: reel-progress 4s linear forwards;
+
+  @keyframes reel-progress {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair-display), ui-serif, Georgia, serif;
+}
+
+/* ---------- Motion ---------- */
+
+/* Shared timing for every animation. Phones move less and finish sooner. */
+:root {
+  --motion-ease-soft: cubic-bezier(0.16, 1, 0.3, 1); /* entrances: quick start, long gentle settle */
+  --motion-ease-glide: cubic-bezier(0.22, 1, 0.36, 1); /* hovers and sliding UI */
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1); /* closing: speeds up as it leaves */
+  --motion-rise: 16px;
+  --motion-rise-media: 24px;
+  --motion-reveal: 700ms;
+  --motion-reveal-media: 900ms;
+  --motion-stagger: 70ms;
+  --motion-max-steps: 6;
+  --motion-hero: 800ms;
+  --motion-hero-step: 120ms;
+  --motion-dialog-in: 320ms;
+  --motion-dialog-out: 180ms;
+  --motion-dialog-rise: 12px;
+}
+
+@media (width < 48rem) {
+  :root {
+    --motion-rise: 10px;
+    --motion-rise-media: 16px;
+    --motion-reveal: 550ms;
+    --motion-reveal-media: 650ms;
+    --motion-stagger: 50ms;
+    --motion-max-steps: 4;
+    --motion-hero: 600ms;
+    --motion-hero-step: 80ms;
+    --motion-dialog-in: 280ms;
+    --motion-dialog-out: 160ms;
+  }
+}
+
+/* Reduced motion: popups only fade. Everything else that moves is opted in with motion-safe. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-dialog-in: 200ms;
+    --motion-dialog-rise: 0px;
+  }
+}
+
+/* Per-element start delay for the animations below, e.g. [--delay:120ms]. Not inherited. */
+@property --delay {
+  syntax: "<time>";
+  inherits: false;
+  initial-value: 0s;
+}
+
+/* inline: the values are written into each utility, so var(--delay) resolves on the element itself. */
+@theme inline {
+  --ease-glide: var(--motion-ease-glide);
+  --animate-fade-in: fade-in 500ms ease-out backwards;
+  --animate-hero-rise: rise-in var(--motion-hero) var(--motion-ease-soft) var(--delay) backwards;
+  --animate-star-in: star-in 900ms var(--motion-ease-soft) var(--delay) backwards;
+  --animate-content-in: content-in 400ms var(--motion-ease-soft) var(--delay) backwards;
+  --animate-tab-in: content-in 250ms var(--motion-ease-soft) var(--delay) backwards;
+  --animate-splash-logo: rise-in 700ms var(--motion-ease-soft) var(--delay) backwards;
+  --animate-splash-rule: draw-in 600ms var(--motion-ease-soft) var(--delay) backwards;
+  --animate-splash-dot: pop-in 420ms ease-out var(--delay) backwards;
+  --animate-splash-text: content-in 600ms var(--motion-ease-soft) var(--delay) backwards;
+  --animate-splash-lift: splash-lift var(--splash-exit) cubic-bezier(0.76, 0, 0.24, 1) var(--splash-exit-delay) forwards;
+  --animate-splash-fade: splash-fade var(--splash-exit) ease-out var(--splash-exit-delay) forwards;
+}
+
+/* ---------- Initial-load splash ---------- */
+
+/* Logo 0.1–0.8s, rule 0.65–1.25s, dot 1.1–1.52s, tagline 1.2–1.8s, hold 1s, curtain lifts 2.8–3.6s.
+   Reduced motion: shown at once, held briefly, then faded out (done at 1.2s). */
+:root {
+  --splash-exit-delay: 2800ms;
+  --splash-exit: 800ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --splash-exit-delay: 900ms;
+    --splash-exit: 300ms;
+  }
+}
+
+/* The page can't scroll while the splash is up. Timed in CSS so it always ends with the curtain,
+   even if JavaScript never runs; the splash is also removed from the page once it has gone. */
+html:has([data-splash]) {
+  animation: splash-lock calc(var(--splash-exit-delay) + var(--splash-exit)) step-end;
+}
+
+@keyframes splash-lock {
+  from,
+  to {
+    overflow: hidden;
+  }
+}
+
+/* The accent dot: a small, quick pop. */
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    scale: 0;
+  }
+  60% {
+    opacity: 1;
+    scale: 1.25;
+  }
+}
+
+/* The curtain lifting away; hidden at the end so it can never block the page. */
+@keyframes splash-lift {
+  to {
+    translate: 0 -100%;
+    visibility: hidden;
+  }
+}
+
+@keyframes splash-fade {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--rise, var(--motion-rise));
+  }
+}
+
+/* Popup content: a shorter rise. */
+@keyframes content-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+/* Divider lines drawing in from the left. */
+@keyframes draw-in {
+  from {
+    scale: 0 1;
+  }
+}
+
+/* The hero's orange star turning into place. */
+@keyframes star-in {
+  from {
+    opacity: 0;
+    rotate: 90deg;
+    scale: 0.6;
+  }
+}
+
+/* No scale here: scaling leaves the popup rasterised a pixel differently once it has settled. */
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--motion-dialog-rise);
+  }
+}
+
+/* Hover effects written with arbitrary selectors (Tailwind's own hover: already does this). */
+@custom-variant can-hover (@media (hover: hover));
+
+/* Text links: a hairline underline draws in from the left on hover or keyboard focus. */
+@utility link-underline {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -0.25rem;
+    height: 1px;
+    background-color: currentColor;
+    transform-origin: left;
+    scale: 0 1;
+    transition: scale 300ms var(--motion-ease-glide);
+  }
+
+  @media (hover: hover) {
+    &:hover::after {
+      scale: 1;
+    }
+  }
+
+  &:focus-visible::after {
+    scale: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      transition: none;
+    }
+  }
+}
+
+/* Shared horizontal frame: 1176px content width (matches the 1440px design). */
+@utility page-container {
+  @apply mx-auto w-full max-w-314 px-5 sm:px-10;
+}
+
+/* Grey stand-in for images and videos that haven't been supplied yet. */
+@utility image-placeholder {
+  background-image: linear-gradient(160deg, #bbbbb4, #a9a9a3);
+}
+
+body {
+  background-color: var(--color-brand-green);
+  color: var(--color-cream);
+}
+
+html {
+  /* Keep the scrollbar's space reserved, so locking the page behind a popup doesn't shift it sideways. */
+  scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Keep the page behind the popup from scrolling while it is open. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/* Section entrances (see RevealObserver): content below the fold waits, hidden, until it scrolls
+   into view, then rises in. Items arriving together follow one another (--reveal-i). */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal-state="pending"] {
+    opacity: 0;
+  }
+
+  [data-reveal-state="in"] {
+    animation: rise-in var(--motion-reveal) var(--motion-ease-soft) backwards;
+    animation-delay: calc(min(var(--reveal-i, 0), var(--motion-max-steps)) * var(--motion-stagger));
+  }
+
+  /* Images and placeholders: a little further and slower. */
+  [data-reveal="media"][data-reveal-state="in"] {
+    --rise: var(--motion-rise-media);
+    animation-duration: var(--motion-reveal-media);
+  }
+
+  [data-reveal="line"][data-reveal-state="in"] {
+    animation-name: draw-in;
+    animation-duration: var(--motion-reveal-media);
+    transform-origin: left;
+  }
+
+  [data-reveal="fade"][data-reveal-state="in"] {
+    animation-name: fade-in;
+  }
+}
+
+@media print {
+  [data-reveal-state] {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
+
+/* Popups (native <dialog>): the overlay fades in and the panel rises into place. */
+dialog[open] {
+  animation: dialog-in var(--motion-dialog-in) var(--motion-ease-soft);
+}
+
+dialog[open]::backdrop {
+  animation: fade-in 250ms ease-out;
+}
+
+/* Closing is animated only where the browser can keep a closing dialog on top (Chromium today);
+   elsewhere it closes instantly, as before. */
+@supports (overlay: auto) {
+  dialog {
+    transition-property: opacity, translate, overlay, display;
+    transition-duration: var(--motion-dialog-out);
+    transition-timing-function: var(--motion-ease-exit);
+    transition-behavior: allow-discrete;
+  }
+
+  dialog:not([open]) {
+    opacity: 0;
+    translate: 0 calc(var(--motion-dialog-rise) * 0.67);
+  }
+
+  dialog::backdrop {
+    transition-property: opacity, overlay, display;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in;
+    transition-behavior: allow-discrete;
+  }
+
+  dialog:not([open])::backdrop {
+    opacity: 0;
+  }
+}
