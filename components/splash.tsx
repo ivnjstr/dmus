@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 
 // Set once the splash has gone, so it never comes back until the page is reloaded.
@@ -12,6 +12,13 @@ let played = false;
 // the first paint; this component only takes the splash out of the page once it has finished.
 export function Splash() {
   const [visible, setVisible] = useState(!played);
+
+  // Mounted after the splash already played (back on the page in-app): tell the header/hero not to
+  // wait for a curtain that isn't coming (globals.css). Runs before paint, so before they start.
+  useLayoutEffect(() => {
+    if (played) document.documentElement.dataset.splashSkipped = "";
+  }, []);
+
   if (!visible) return null;
 
   return (

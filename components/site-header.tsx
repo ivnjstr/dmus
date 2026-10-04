@@ -13,7 +13,7 @@ const NAV_LINKS = [
 export function SiteHeader() {
   return (
     <header>
-      {/* Fades in on load, alongside the hero. */}
+      {/* Fades in as the splash lifts, alongside the hero. */}
       <div className="page-container flex flex-wrap items-center justify-between gap-y-5 py-5 motion-safe:animate-fade-in md:py-10">
         <Logo />
 

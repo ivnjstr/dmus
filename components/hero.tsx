@@ -4,7 +4,7 @@ import { ContactModalTrigger } from "@/components/contact-modal";
 export function Hero() {
   return (
     <section className="border-b border-cream/15">
-      {/* On load each part rises in after the one before (CSS only, so it never waits for JavaScript). */}
+      {/* As the splash lifts, each part rises in after the one before (CSS only, so it never waits for JavaScript). */}
       <div className="page-container flex flex-col items-center pt-14 pb-24 text-center md:pt-22 md:pb-38">
         <h1 className="font-display text-[clamp(1.875rem,9.5vw,4.725rem)] leading-[1.1]">
           <span className="block motion-safe:animate-hero-rise">We turn brands into</span>

@@ -80,17 +80,22 @@
 /* inline: the values are written into each utility, so var(--delay) resolves on the element itself. */
 @theme inline {
   --ease-glide: var(--motion-ease-glide);
-  --animate-fade-in: fade-in 500ms ease-out backwards;
-  --animate-hero-rise: rise-in var(--motion-hero) var(--motion-ease-soft) var(--delay) backwards;
-  --animate-star-in: star-in 900ms var(--motion-ease-soft) var(--delay) backwards;
+  /* Header and hero entrances wait for the splash curtain (--entrance-offset, below). */
+  --animate-fade-in: fade-in 500ms ease-out var(--entrance-offset) backwards;
+  --animate-hero-rise: rise-in var(--motion-hero) var(--motion-ease-soft) calc(var(--entrance-offset) + var(--delay)) backwards;
+  --animate-star-in: star-in 900ms var(--motion-ease-soft) calc(var(--entrance-offset) + var(--delay)) backwards;
   --animate-content-in: content-in 400ms var(--motion-ease-soft) var(--delay) backwards;
   --animate-tab-in: content-in 250ms var(--motion-ease-soft) var(--delay) backwards;
   --animate-splash-logo: rise-in 700ms var(--motion-ease-soft) var(--delay) backwards;
   --animate-splash-rule: draw-in 600ms var(--motion-ease-soft) var(--delay) backwards;
   --animate-splash-dot: pop-in 420ms ease-out var(--delay) backwards;
   --animate-splash-text: content-in 600ms var(--motion-ease-soft) var(--delay) backwards;
-  --animate-splash-lift: splash-lift var(--splash-exit) cubic-bezier(0.76, 0, 0.24, 1) var(--splash-exit-delay) forwards;
-  --animate-splash-fade: splash-fade var(--splash-exit) ease-out var(--splash-exit-delay) forwards;
+  --animate-splash-lift:
+    splash-lift var(--splash-exit) cubic-bezier(0.76, 0, 0.24, 1) var(--splash-exit-delay) forwards,
+    splash-hide var(--splash-exit) step-end var(--splash-exit-delay) forwards;
+  --animate-splash-fade:
+    splash-fade var(--splash-exit) ease-out var(--splash-exit-delay) forwards,
+    splash-hide var(--splash-exit) step-end var(--splash-exit-delay) forwards;
 }
 
 /* ---------- Initial-load splash ---------- */
@@ -107,6 +112,19 @@
     --splash-exit-delay: 900ms;
     --splash-exit: 300ms;
   }
+}
+
+/* The header and hero start their entrance three-quarters into the curtain lift, as it clears them,
+   so it plays in view instead of underneath the splash. Both are timed from the first paint, like
+   the splash, so they stay in step on any connection. When the splash is skipped (returning to the
+   page in-app), Splash marks <html> and they start at once. Never set during a normal load, so the
+   delay can't change mid-animation. */
+:root {
+  --entrance-offset: calc(var(--splash-exit-delay) + var(--splash-exit) * 0.75);
+}
+
+html[data-splash-skipped] {
+  --entrance-offset: 0s;
 }
 
 /* The page can't scroll while the splash is up. Timed in CSS so it always ends with the curtain,
@@ -134,17 +152,24 @@ html:has([data-splash]) {
   }
 }
 
-/* The curtain lifting away; hidden at the end so it can never block the page. */
+/* The curtain lifting away. Only translate/opacity animate, so the compositor runs the exit
+   (visibility in these keyframes would push the whole lift onto the main thread). */
 @keyframes splash-lift {
   to {
     translate: 0 -100%;
-    visibility: hidden;
   }
 }
 
 @keyframes splash-fade {
   to {
     opacity: 0;
+  }
+}
+
+/* Runs alongside the exit and hides the splash only at its very end (step-end), so it can never
+   block the page, and its shadow doesn't linger at the top edge if JavaScript never removes it. */
+@keyframes splash-hide {
+  to {
     visibility: hidden;
   }
 }
