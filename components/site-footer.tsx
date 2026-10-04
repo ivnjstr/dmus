@@ -15,7 +15,7 @@ const EMAIL = "digitalmindsunitedsolutions@gmail.com";
 
 export function SiteFooter() {
   return (
-    <footer className="bg-cream text-[#20281f]">
+    <footer className="paper-cream bg-cream text-[#20281f]">
       {/* Fades in as it comes into view; links get the drawn underline on hover. */}
       <div
         data-reveal="fade"

@@ -25,7 +25,7 @@ export function ContactModal({ ref }: { ref: Ref<HTMLDialogElement> }) {
     <dialog
       ref={ref}
       aria-labelledby={`${id}-title`}
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-137 overflow-y-auto overscroll-contain rounded-lg border border-cream/20 bg-brand-green p-6 text-cream shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop:bg-black/60 sm:px-12 sm:pt-12.5 sm:pb-11.5"
+      className="paper-green m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-137 overflow-y-auto overscroll-contain rounded-lg border border-cream/20 bg-brand-green p-6 text-cream shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop:bg-black/60 sm:px-12 sm:pt-12.5 sm:pb-11.5"
     >
       {/* The panel itself animates in/out (globals.css); hovering the close button turns the X. */}
       <button

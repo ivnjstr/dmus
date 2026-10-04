@@ -26,7 +26,7 @@ export function Splash() {
       }}
       // Same green as the page, so the soft shadow under its bottom edge (off-screen until it moves)
       // is what lets the lift read as a curtain.
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-green px-5 text-center shadow-[0_24px_60px_rgba(0,0,0,0.45)] motion-safe:animate-splash-lift motion-reduce:animate-splash-fade"
+      className="paper-green fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-green px-5 text-center shadow-[0_24px_60px_rgba(0,0,0,0.45)] motion-safe:animate-splash-lift motion-reduce:animate-splash-fade"
     >
       {/* The existing logo (inert: its link can't be focused or clicked here). */}
       <div inert className="[--delay:100ms] motion-safe:animate-splash-logo">

@@ -34,7 +34,7 @@ export function WorkModal({
       ref={ref}
       aria-labelledby={titleId}
       // The panel animates in/out like the Contact popup (globals.css), a touch slower as it's larger.
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-280 overflow-y-auto overscroll-contain rounded-lg border border-cream/15 bg-brand-green p-6 text-cream shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop:bg-[#091a17]/95 sm:p-8 md:p-12 motion-safe:md:[--motion-dialog-in:360ms]"
+      className="paper-green m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-280 overflow-y-auto overscroll-contain rounded-lg border border-cream/15 bg-brand-green p-6 text-cream shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop:bg-[#091a17]/95 sm:p-8 md:p-12 motion-safe:md:[--motion-dialog-in:360ms]"
     >
       <button
         type="button"

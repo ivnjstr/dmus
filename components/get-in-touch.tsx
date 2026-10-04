@@ -5,7 +5,7 @@ import { ContactModalTrigger } from "@/components/contact-modal";
 
 export function GetInTouch() {
   return (
-    <section id="contact" className="bg-cream text-[#20281f]">
+    <section id="contact" className="paper-cream bg-cream text-[#20281f]">
       {/* Eyebrow, each headline line, the subline and the button rise in one after another. */}
       <div className="page-container flex flex-col items-center py-24 text-center md:py-41.5">
         <p data-reveal className="text-xs leading-none font-semibold tracking-[0.2em] text-[#d4841c] uppercase">
