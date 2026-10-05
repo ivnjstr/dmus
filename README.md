@@ -34,6 +34,17 @@ The Contact popup emails each inquiry to the client's mailbox (GoDaddy Professio
 
 None of them starts with `NEXT_PUBLIC_`, so they stay on the server. If any is missing, the form shows an error instead of pretending to send.
 
+## Maintenance mode (temporary)
+
+While `MAINTENANCE_MODE` is `true`, `proxy.ts` shows the "We'll be back soon" page (`app/maintenance/page.tsx`) at every page address, with HTTP 503, `Retry-After: 3600` and `X-Robots-Tag: noindex, nofollow`. Assets and the Contact popup keep working. Any other value, or no value, leaves the site exactly as normal.
+
+| Variable | Value |
+| --- | --- |
+| `MAINTENANCE_MODE` | `true` turns it on; anything else turns it off |
+| `MAINTENANCE_BYPASS_SECRET` | Optional, a long random string. Open any URL with `?preview=<secret>` to see the real site (a 30-day cookie); `?preview=off` to see the maintenance page again |
+
+On Vercel, change the variables in Settings → Environment Variables (Production), then redeploy. To remove the feature completely, delete `proxy.ts`, `app/maintenance/` and the two variables.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

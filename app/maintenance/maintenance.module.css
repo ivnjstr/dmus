@@ -1,0 +1,42 @@
+/* TEMPORARY maintenance page (see proxy.ts). */
+
+/* Load-in: each block fades up after the one before (set --delay on the element). */
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) var(--delay) backwards;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+
+/* The status dot's soft pulse: a copy of the dot that grows and fades. A still dot with reduced motion. */
+.pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pulse::after {
+    animation: pulse 2.2s ease-out infinite;
+  }
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.7;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 3.2;
+  }
+}
