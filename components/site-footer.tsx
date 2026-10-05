@@ -11,7 +11,7 @@ const PAGE_LINKS = [
 // Profile URLs haven't been supplied yet — add an href to each and render it as a link.
 const SOCIAL_LINKS = ["Instagram", "Facebook", "TikTok"];
 
-const EMAIL = "digitalmindsunitedsolutions@gmail.com";
+const EMAIL = "hello@marketingwithdmus.com";
 
 export function SiteFooter() {
   return (
