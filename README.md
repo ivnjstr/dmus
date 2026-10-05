@@ -20,6 +20,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Contact form email
+
+The Contact popup emails each inquiry to the client's mailbox (GoDaddy Professional Email powered by Titan) from a Server Action, `components/contact-modal/send-inquiry.ts`. It needs these environment variables. Set them in Vercel (Production), and for local testing in `.env.local`, which is git-ignored. Never commit them.
+
+| Variable | Value |
+| --- | --- |
+| `SMTP_HOST` | `smtpout.secureserver.net` |
+| `SMTP_PORT` | `465` (SSL) |
+| `SMTP_USER` | The sending mailbox's full address, e.g. `hello@marketingwithdmus.com` |
+| `SMTP_PASSWORD` | That mailbox's password (secret) |
+| `CONTACT_TO_EMAIL` | The address inquiries are delivered to |
+
+None of them starts with `NEXT_PUBLIC_`, so they stay on the server. If any is missing, the form shows an error instead of pretending to send.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

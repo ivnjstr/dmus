@@ -1,15 +1,11 @@
 "use client";
 
-import { useId, type Ref } from "react";
+import { useId, useState, useTransition, type FormEvent, type Ref } from "react";
 import { buttonClasses } from "@/components/button-styles";
+import { HONEYPOT_FIELD, MAX_LENGTH, SERVICES, type InquiryResult } from "./inquiry";
+import { sendInquiry } from "./send-inquiry";
 
-const SERVICES = [
-  "Branding",
-  "Social Media",
-  "Content & Reels",
-  "Creative Campaigns",
-  "Website / Digital",
-];
+const FAILED_MESSAGE = "Sorry, your inquiry couldn't be sent. Please try again in a moment.";
 
 const labelClasses =
   "mb-2.25 block text-[0.72rem] leading-normal font-semibold tracking-[0.03em] text-cream/65 uppercase";
@@ -20,6 +16,28 @@ const fieldClasses =
 
 export function ContactModal({ ref }: { ref: Ref<HTMLDialogElement> }) {
   const id = useId();
+  const [result, setResult] = useState<InquiryResult | null>(null);
+  const [sending, startSending] = useTransition();
+
+  // Sent from here rather than <form action>, which would clear the fields even when sending fails.
+  // They are only cleared once the inquiry has actually gone.
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (sending) return;
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    startSending(async () => {
+      let outcome: InquiryResult;
+      try {
+        outcome = await sendInquiry(data);
+      } catch {
+        // Offline, a server error, or a page left open across a redeploy.
+        outcome = { status: "failed" };
+      }
+      startSending(() => setResult(outcome));
+      if (outcome.status === "sent") form.reset();
+    });
+  }
 
   return (
     <dialog
@@ -57,24 +75,24 @@ export function ContactModal({ ref }: { ref: Ref<HTMLDialogElement> }) {
         Fill this out and we&apos;ll get back to you within 1–2 business days to set up a call.
       </p>
 
-      {/* Submission isn't connected to anything yet. */}
-      <form className="mt-8.5" onSubmit={(event) => event.preventDefault()}>
+      {/* Emails the inquiry to the client's mailbox (send-inquiry.ts). Editing clears the last result. */}
+      <form className="mt-8.5" onSubmit={submit} onInput={() => setResult(null)}>
         <div className="grid gap-x-3.5 gap-y-5 sm:grid-cols-2">
           <div>
             <label htmlFor={`${id}-name`} className={labelClasses}>Full name</label>
-            <input id={`${id}-name`} name="name" type="text" autoComplete="name" placeholder="Juan Dela Cruz" className={`${fieldClasses} h-13`} />
+            <input id={`${id}-name`} name="name" type="text" required maxLength={MAX_LENGTH.name} autoComplete="name" placeholder="Juan Dela Cruz" className={`${fieldClasses} h-13`} />
           </div>
           <div>
             <label htmlFor={`${id}-email`} className={labelClasses}>Email address</label>
-            <input id={`${id}-email`} name="email" type="email" autoComplete="email" placeholder="you@brand.com" className={`${fieldClasses} h-13`} />
+            <input id={`${id}-email`} name="email" type="email" required maxLength={MAX_LENGTH.email} autoComplete="email" placeholder="you@brand.com" className={`${fieldClasses} h-13`} />
           </div>
           <div>
             <label htmlFor={`${id}-phone`} className={labelClasses}>Phone number</label>
-            <input id={`${id}-phone`} name="phone" type="tel" autoComplete="tel" placeholder="+63 900 000 0000" className={`${fieldClasses} h-13`} />
+            <input id={`${id}-phone`} name="phone" type="tel" maxLength={MAX_LENGTH.phone} autoComplete="tel" placeholder="+63 900 000 0000" className={`${fieldClasses} h-13`} />
           </div>
           <div>
             <label htmlFor={`${id}-company`} className={labelClasses}>Brand / Company</label>
-            <input id={`${id}-company`} name="company" type="text" autoComplete="organization" placeholder="Your brand name" className={`${fieldClasses} h-13`} />
+            <input id={`${id}-company`} name="company" type="text" maxLength={MAX_LENGTH.company} autoComplete="organization" placeholder="Your brand name" className={`${fieldClasses} h-13`} />
           </div>
         </div>
 
@@ -98,13 +116,25 @@ export function ContactModal({ ref }: { ref: Ref<HTMLDialogElement> }) {
           <textarea
             id={`${id}-message`}
             name="message"
+            required
+            maxLength={MAX_LENGTH.message}
             placeholder="A little about your brand, goals, and timeline..."
             className={`${fieldClasses} block h-25 resize-none py-3.5`}
           />
         </div>
 
-        <button type="submit" className={`${buttonClasses("primary", "block")} group mt-3.5`}>
-          Send Inquiry
+        {/* Spam trap: invisible and unreachable for people (screen readers and keyboard included). */}
+        <div aria-hidden="true" className="sr-only">
+          <label htmlFor={`${id}-${HONEYPOT_FIELD}`}>Leave this field empty</label>
+          <input id={`${id}-${HONEYPOT_FIELD}`} name={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" />
+        </div>
+
+        <button
+          type="submit"
+          disabled={sending}
+          className={`${buttonClasses("primary", "block")} group mt-3.5 disabled:cursor-wait disabled:opacity-70`}
+        >
+          {sending ? "Sending…" : "Send Inquiry"}
           <svg
             viewBox="0 0 12 10"
             className="h-2 w-2.5 transition-transform duration-300 ease-glide motion-safe:group-hover:translate-x-0.75"
@@ -113,6 +143,22 @@ export function ContactModal({ ref }: { ref: Ref<HTMLDialogElement> }) {
             <path d="M1 5h10M7 1l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
+        {/* Announced to screen readers; takes no space until there is something to say. */}
+        <div aria-live="polite">
+          {result && (
+            <p
+              className={`mt-4 text-center text-[0.8rem] leading-normal font-semibold ${
+                result.status === "sent" ? "text-cream" : "text-brand-orange"
+              }`}
+            >
+              {result.status === "sent"
+                ? "Thank you! Your inquiry has been sent. We'll get back to you within 1–2 business days."
+                : result.status === "invalid"
+                  ? result.message
+                  : FAILED_MESSAGE}
+            </p>
+          )}
+        </div>
         <p className="mt-4 text-center text-[0.7rem] leading-normal text-cream/55">
           No spam, ever. We&apos;ll only use this to get back to you about your project.
         </p>
